@@ -1,0 +1,15 @@
+This is a placeholder documentation file.
+
+Replace this content with your real product documentation. The RAG app will:
+- Chunk this file into numbered chunks (chunk-00, chunk-01, ...)
+- Embed and index the chunks into a local Chroma database under ./data/index
+- Retrieve the most relevant chunks for each question
+- Answer using ONLY retrieved chunks and cite them like [doc.txt#chunk-00]
+
+Example topics you might include:
+- How to reset a password
+- How billing works
+- Supported platforms and system requirements
+- Troubleshooting steps
+
+

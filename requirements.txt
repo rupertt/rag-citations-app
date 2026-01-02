@@ -1,0 +1,15 @@
+fastapi==0.115.6
+uvicorn[standard]==0.30.6
+
+langchain==0.3.13
+langchain-core==0.3.28
+langchain-text-splitters==0.3.4
+langchain-openai==0.2.14
+langchain-chroma==0.1.4
+chromadb==0.5.23
+
+pydantic==2.10.4
+pydantic-settings==2.7.0
+python-dotenv==1.0.1
+
+

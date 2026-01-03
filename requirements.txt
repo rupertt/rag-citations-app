@@ -7,9 +7,15 @@ langchain-text-splitters==0.3.4
 langchain-openai==0.2.14
 langchain-chroma==0.1.4
 chromadb==0.5.23
+# pysqlite3-binary is used as a fallback shim for older libsqlite3 on Linux/WSL.
+# It is not available on Windows, so we guard it with an environment marker.
+pysqlite3-binary==0.5.3.post1; platform_system != "Windows"
+crewai==0.193.2
 
 pydantic==2.10.4
 pydantic-settings==2.7.0
 python-dotenv==1.0.1
+jinja2==3.1.4
 
+pytest==8.3.4
 

@@ -3,15 +3,23 @@ from __future__ import annotations
 import logging
 
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
 
 from app.core.logging import setup_logging
 from app.core.types import AskRequest, AskResponse
 from app.rag import answer_question
+from app.web import router as ui_router
 
 setup_logging()
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="rag-citations-app")
+
+# Serve local static assets for the browser UI (no external CDNs).
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Minimal UI at GET / (kept separate from API routes).
+app.include_router(ui_router)
 
 
 @app.get("/health")
@@ -26,6 +34,22 @@ def ask(req: AskRequest) -> AskResponse:
         return AskResponse(**result)
     except Exception as e:
         logger.exception("Error answering question")
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@app.post("/ask_agent", response_model=AskResponse)
+def ask_agent(req: AskRequest) -> AskResponse:
+    """
+    CrewAI-based agent mode. Request/response schema matches /ask.
+    """
+    try:
+        # Lazy import so server can start even if CrewAI isn't installed yet.
+        from app.crew.crew import answer_question_agent
+
+        result = answer_question_agent(req.question, top_k=req.top_k, debug=req.debug)
+        return AskResponse(**result)
+    except Exception as e:
+        logger.exception("Error answering question (agent mode)")
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 

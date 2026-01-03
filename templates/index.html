@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RAG Citations App</title>
+    <!-- Local-only assets (no external CDNs). -->
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header class="header">
+        <h1>RAG Citations App</h1>
+        <p class="subtle">
+          Ask a question. Answers must cite sources like <code>[doc.txt#chunk-00]</code>.
+        </p>
+      </header>
+
+      <section class="card">
+        <label class="label" for="question">Question</label>
+        <textarea id="question" rows="6" placeholder="Type your question here..."></textarea>
+
+        <div class="row">
+          <div class="field">
+            <label class="label" for="top_k">top_k</label>
+            <input id="top_k" type="number" min="1" max="20" value="4" />
+          </div>
+
+          <div class="field checkbox">
+            <label class="label" for="debug">
+              <input id="debug" type="checkbox" />
+              debug
+            </label>
+          </div>
+
+          <div class="field checkbox">
+            <label class="label" for="agent_mode">
+              <input id="agent_mode" type="checkbox" />
+              Agent mode
+            </label>
+          </div>
+        </div>
+
+        <div class="row actions">
+          <button id="askBtn" class="btn" type="button">Ask</button>
+          <span id="status" class="status subtle" aria-live="polite"></span>
+        </div>
+      </section>
+
+      <section id="result" class="card hidden">
+        <h2 class="h2">Answer</h2>
+        <pre id="answer" class="answer"></pre>
+
+        <h2 class="h2">Citations</h2>
+        <ul id="citations" class="list"></ul>
+
+        <details id="debugDetails" class="hidden">
+          <summary>Debug: retrieved chunks</summary>
+          <div id="debugRetrieved" class="debug"></div>
+        </details>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
+
+

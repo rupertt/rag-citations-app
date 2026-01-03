@@ -13,4 +13,9 @@ venv/
 data/index/*
 !data/index/.gitkeep
 
+# Logs
+*.log
+
+.python-version
+
 

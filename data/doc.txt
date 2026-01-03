@@ -1,15 +1,113 @@
-This is a placeholder documentation file.
+Payments API – Internal Service Documentation
+=============================================
 
-Replace this content with your real product documentation. The RAG app will:
-- Chunk this file into numbered chunks (chunk-00, chunk-01, ...)
-- Embed and index the chunks into a local Chroma database under ./data/index
-- Retrieve the most relevant chunks for each question
-- Answer using ONLY retrieved chunks and cite them like [doc.txt#chunk-00]
+Overview
+--------
+The Payments API is a backend service responsible for processing credit card and ACH payments for customer transactions.
+It runs as a stateless service on Kubernetes in the production environment.
+The service communicates with the external payment processor PayFast via HTTPS.
 
-Example topics you might include:
-- How to reset a password
-- How billing works
-- Supported platforms and system requirements
-- Troubleshooting steps
+The Payments API is deployed in the `payments` namespace and is exposed internally through a Kubernetes Service.
+All incoming traffic passes through the API Gateway.
 
+---
 
+Service Architecture
+--------------------
+The Payments API consists of the following components:
+- API Gateway (handles authentication and rate limiting)
+- Payments API service (business logic)
+- PostgreSQL database (stores transaction records)
+- External PayFast API (third-party payment processor)
+
+The Payments API service makes outbound HTTPS calls to PayFast on port 443.
+Database connections use port 5432.
+
+---
+
+Key Alerts
+----------
+Alert: High 5xx Error Rate  
+This alert triggers when more than 5% of requests return HTTP 5xx responses over a 5-minute window.
+Common causes include:
+- PayFast API outages
+- Database connection pool exhaustion
+- Misconfigured environment variables
+
+Alert: Increased Latency  
+This alert triggers when p95 latency exceeds 2 seconds for more than 3 minutes.
+This is often correlated with slow responses from PayFast or database performance issues.
+
+Alert: Pod Restarts  
+This alert triggers when a Payments API pod restarts more than 3 times in 10 minutes.
+Frequent restarts may indicate out-of-memory (OOM) errors or invalid configuration.
+
+---
+
+Triage Checklist
+----------------
+When investigating a Payments API incident, follow these steps:
+
+1. Check the High 5xx Error Rate alert to confirm error volume and timing.
+2. Review recent deployments to determine if a change was rolled out before the incident.
+3. Inspect logs for errors related to PayFast API timeouts or authentication failures.
+4. Verify database connectivity and connection pool usage.
+5. Check Kubernetes pod status for restarts or OOMKilled events.
+
+---
+
+Common Failure Scenarios
+------------------------
+PayFast API Outage:
+If the PayFast API is unavailable or returning errors, the Payments API will return HTTP 502 or 504 responses.
+This typically results in a spike in 5xx errors and increased latency.
+
+Database Connection Exhaustion:
+If all database connections are in use, the Payments API may fail to process new requests.
+This can cause elevated error rates and slow response times.
+
+Misconfigured Environment Variables:
+Incorrect PayFast credentials or missing configuration values can cause authentication failures.
+These failures appear as HTTP 500 errors in application logs.
+
+---
+
+Fix Actions
+-----------
+For PayFast API issues:
+- Check PayFast status page (if available).
+- Temporarily enable circuit breaker mode if supported.
+- Communicate with stakeholders about degraded payment processing.
+
+For database issues:
+- Restart affected pods to reset connections.
+- Increase database connection pool limits if safe to do so.
+- Investigate long-running queries.
+
+For pod restarts:
+- Review pod logs for OOMKilled messages.
+- Increase memory limits if usage is consistently high.
+- Roll back recent deployments if necessary.
+
+---
+
+Escalation
+----------
+Escalate to the Payments Platform team if:
+- The incident lasts longer than 15 minutes.
+- Multiple failure scenarios occur simultaneously.
+- Customer payment failures exceed acceptable thresholds.
+
+Escalate to the Infrastructure team if:
+- Kubernetes cluster issues are suspected.
+- Multiple services in the cluster are impacted.
+
+---
+
+Out of Scope
+------------
+This documentation does not cover:
+- Refund processing logic
+- Chargeback handling
+- Customer account management
+- Frontend payment UI behavior
